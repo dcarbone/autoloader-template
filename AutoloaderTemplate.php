@@ -48,7 +48,7 @@ class AutoloaderTemplate
         if (0 === strpos($class, self::ROOT_NAMESPACE_OF_CONCERN))
         {
             // First, attempt to find where all namespace sections correspond to a directory
-            $psr0 = vsprintf('%s%s.php, array(
+            $psr0 = vsprintf('%s%s.php', array(
                 self::ROOT_DIRECTORY_OF_CONCERN,
                 str_replace('\\', '/', $class)
             ));
