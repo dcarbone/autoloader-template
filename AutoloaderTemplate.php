@@ -1,5 +1,21 @@
 <?php
 
+/*
+ * Copyright 2016 Daniel Carbone (daniel.p.carbone@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * Class AutoloaderTemplate
  * 
@@ -8,13 +24,13 @@
 class AutoloaderTemplate
 {
     // Modify this constant to be the root of the namespace of the classes you wish to autoload.
-    const ROOT_NAMESPACE_OF_CONCERN = 'Change\\Me';
-    
+    public static $rootNamespaceOfConcern = 'Change\\Me';
+
     // Modify this constant to be the root directory containing namespaced classes
-    const ROOT_DIRECTORY_OF_CONCERN = __DIR__;
+    public static $rootDirectoryOfConcern = __DIR__;
 
     /** @var bool */
-    private static $registered = false;
+    private static $_registered = false;
 
     /**
      * @return bool
@@ -22,10 +38,10 @@ class AutoloaderTemplate
      */
     public static function register()
     {
-        if (self::$registered)
-            return self::$registered;
+        if (self::$_registered)
+            return self::$_registered;
 
-        return self::$registered = spl_autoload_register(array(__CLASS__, 'loadClass'), true);
+        return self::$_registered = spl_autoload_register(array(__CLASS__, 'loadClass'), true);
     }
 
     /**
@@ -33,8 +49,8 @@ class AutoloaderTemplate
      */
     public static function unregister()
     {
-        self::$registered = !spl_autoload_unregister(array(__CLASS__, 'loadClass'));
-        return !self::$registered;
+        self::$_registered = !spl_autoload_unregister(array(__CLASS__, 'loadClass'));
+        return !self::$_registered;
     }
 
     /**
@@ -45,13 +61,10 @@ class AutoloaderTemplate
      */
     public static function loadClass($class)
     {
-        if (0 === strpos($class, self::ROOT_NAMESPACE_OF_CONCERN))
+        if (0 === strpos($class, static::$rootNamespaceOfConcern))
         {
             // First, attempt to find where all namespace sections correspond to a directory
-            $psr0 = vsprintf('%s%s.php', array(
-                self::ROOT_DIRECTORY_OF_CONCERN,
-                str_replace('\\', '/', $class)
-            ));
+            $psr0 = sprintf('%s%s.php', static::$rootDirectoryOfConcern, str_replace('\\', '/', $class));
             if (file_exists($psr0))
             {
                 require $psr0;
@@ -59,10 +72,11 @@ class AutoloaderTemplate
             }
             
             // Otherwise, attempt to load from PSR-4 style namespace
-            $psr4 = vsprintf('%s%s.php', array(
-                self::ROOT_DIRECTORY_OF_CONCERN,
-                str_replace(array(self::ROOT_NAMESPACE_OF_CONCERN, '\\'), array('', '/'), $class)
-            ));
+            $psr4 = sprintf(
+                '%s%s.php',
+                static::$rootDirectoryOfConcern,
+                str_replace(array(static::$rootNamespaceOfConcern, '\\'), array('', '/'), $class)
+            );
             if (file_exists($psr4))
             {
                 require $psr4;
